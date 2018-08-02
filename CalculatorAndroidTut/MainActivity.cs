@@ -11,7 +11,8 @@ namespace CalculatorAndroidTut
     {
         private TextView calculatorText;
 
-        private string[] numbers = new string[2];
+        private string[] number = new string[2];
+
         private string @operator;
 
         protected override void OnCreate(Bundle savedInstanceState)
@@ -25,7 +26,7 @@ namespace CalculatorAndroidTut
         }
 
         [Java.Interop.Export("ButtonClick")]
-        public void ButtonClick (View v)
+        public void ButtonClick(View v)
         {
             Button button = (Button)v;
             if ("0123456789.".Contains(button.Text))
@@ -38,36 +39,18 @@ namespace CalculatorAndroidTut
                 Erase();
         }
 
-        private void AddDigitOrDecimalPoint(string value)
+        private void Erase()
         {
-            int index = @operator == null ? 0 : 1;
-
-            if (value == "." && numbers[index].Contains("."))
-                return;
-
-            numbers[index] += value;
-
-            UpdateCalculatorText();
-        }
-
-        private void AddOperator(string value)
-        {
-            if (numbers[1] != null)
-            {
-                Calculate(value);
-                return;
-            }
-
-            @operator = value;
-
+            number[0] = number[1] = null;
+            @operator = null;
             UpdateCalculatorText();
         }
 
         private void Calculate(string newOperator = null)
         {
             double? result = null;
-            double? first = numbers[0] == null ? null : (double?)double.Parse(numbers[0]);
-            double? second = numbers[1] == null ? null : (double?)double.Parse(numbers[1]);
+            double? first = number[0] == null ? null : (double?)double.Parse(number[0]);
+            double? second = number[1] == null ? null : (double?)double.Parse(number[1]);
 
             switch (@operator)
             {
@@ -87,21 +70,40 @@ namespace CalculatorAndroidTut
 
             if (result != null)
             {
-                numbers[0] = result.ToString();
+                number[0] = result.ToString();
                 @operator = newOperator;
-                numbers[1] = null;
+                number[1] = null;
                 UpdateCalculatorText();
+
             }
         }
 
-        private void Erase()
+        private void AddOperator(string value)
         {
-            numbers[0] = numbers[1] = null;
-            @operator = null;
+            if (number[1] != null)
+            {
+                Calculate(value);
+                return;
+            }
+
+            @operator = value;
+
             UpdateCalculatorText();
         }
 
-        private void UpdateCalculatorText() => calculatorText.Text = $"{numbers[0]} {@operator} {numbers[1]}";
+        private void AddDigitOrDecimalPoint(string value)
+        {
+            int index = @operator == null ? 0 : 1;
+
+            if (value == "." && number[index].Contains("."))
+                return;
+
+            number[index] += value;
+
+            UpdateCalculatorText();
+        }
+
+        private void UpdateCalculatorText() => calculatorText.Text = $"{number[0]} {@operator} {number[1]}";
     }
 }
 
